@@ -99,13 +99,14 @@ class TestPermissionAssignment(TransactionCase):
 
     def test_res_users_acl_for_manager(self):
         """订单管理员必须能读写 res.users，否则权限分配页根本打不开"""
-        acl = self.env['ir.model.access'].search([
+        accesses = self.env['ir.access'].search([
             ('model_id.model', '=', 'res.users'),
             ('group_id', '=', self.group_manager.id),
-        ], limit=1)
-        self.assertTrue(acl, '缺 res.users 给订单管理员组的访问规则')
-        self.assertTrue(acl.perm_read)
-        self.assertTrue(acl.perm_write)
+        ])
+        self.assertTrue(accesses, '缺 res.users 给订单管理员组的访问规则')
+        ops = set(''.join(accesses.mapped('operation')))
+        self.assertIn('r', ops)
+        self.assertIn('u', ops)
         # 不给建/删，避免管理员乱开账号
-        self.assertFalse(acl.perm_create)
-        self.assertFalse(acl.perm_unlink)
+        self.assertNotIn('c', ops)
+        self.assertNotIn('d', ops)

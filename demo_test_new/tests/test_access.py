@@ -2,15 +2,15 @@ from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger
 
-PERMS = ('perm_read', 'perm_write', 'perm_create', 'perm_unlink')
-
-# 权限矩阵：模型名 -> (操作员组权限, 管理员组权限)，顺序同 PERMS
+# Odoo 20 已移除 ir.model.access 和 perm_* 字段，权限统一由 ir.access.operation 表达，
+# operation 是 'crud' 的子集字符串（如 'cru'），同一组的各条记录按并集合并。
+# 权限矩阵：模型名 -> (操作员组 operation 并集, 管理员组 operation 并集)
 ACL_MATRIX = {
-    'l.sale.order': ((1, 1, 1, 0), (1, 1, 1, 1)),
-    'l.sale.order.line': ((1, 1, 1, 1), (1, 1, 1, 1)),
-    'l.sale.order.wizard': ((1, 1, 1, 1), (1, 1, 1, 1)),
-    'l.task': ((1, 1, 1, 0), (1, 1, 1, 1)),
-    'l.task.tag': ((1, 0, 0, 0), (1, 1, 1, 1)),
+    'l.sale.order': ({'c', 'r', 'u'}, {'c', 'r', 'u', 'd'}),
+    'l.sale.order.line': ({'c', 'r', 'u', 'd'}, {'c', 'r', 'u', 'd'}),
+    'l.sale.order.wizard': ({'c', 'r', 'u', 'd'}, {'c', 'r', 'u', 'd'}),
+    'l.task': ({'c', 'r', 'u'}, {'c', 'r', 'u', 'd'}),
+    'l.task.tag': ({'r'}, {'c', 'r', 'u', 'd'}),
 }
 
 
@@ -43,24 +43,24 @@ class TestAccessRights(TransactionCase):
             'group_ids': [(6, 0, group_ids)],
         })
 
-    def _rule(self, model_name, group):
+    def _accesses(self, model_name, group):
         model = self.env['ir.model'].search([('model', '=', model_name)], limit=1)
         self.assertTrue(model, f'模型 {model_name} 没注册到 ir.model')
-        return self.env['ir.model.access'].search([
+        return self.env['ir.access'].search([
             ('model_id', '=', model.id),
             ('group_id', '=', group.id),
-        ], limit=1)
+        ])
 
     # ---------------- ACL 静态矩阵 ----------------
 
     def test_acl_matrix(self):
-        """每个模型对两个组都有访问规则，且权限位与矩阵一致"""
-        for model_name, (operator_perms, manager_perms) in ACL_MATRIX.items():
-            for group, expected in ((self.group_operator, operator_perms),
-                                    (self.group_manager, manager_perms)):
-                rule = self._rule(model_name, group)
-                self.assertTrue(rule, f'{model_name} 缺少 {group.name} 的访问规则')
-                actual = tuple(1 if rule[p] else 0 for p in PERMS)
+        """每个模型对两个组都有 ir.access 记录，且各条 operation 的并集与矩阵一致"""
+        for model_name, (operator_ops, manager_ops) in ACL_MATRIX.items():
+            for group, expected in ((self.group_operator, operator_ops),
+                                    (self.group_manager, manager_ops)):
+                accesses = self._accesses(model_name, group)
+                self.assertTrue(accesses, f'{model_name} 缺少 {group.name} 的访问规则')
+                actual = set(''.join(accesses.mapped('operation')))
                 self.assertEqual(actual, expected,
                                  f'{model_name} 对 {group.name} 的权限应为 {expected}，实际 {actual}')
 

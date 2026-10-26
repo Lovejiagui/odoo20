@@ -10,6 +10,7 @@ odoo.conf
 # 编辑器与系统
 .idea/
 .vscode/
+.workbuddy/
 .DS_Store
 Thumbs.db
 

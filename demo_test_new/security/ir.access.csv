@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,operation
+access_l_sale_order_operator,l.sale.order.operator,model_l_sale_order,l_group_order_user,cru
+access_l_sale_order_manager,l.sale.order.manager,model_l_sale_order,l_group_order_manager,crud
+access_l_sale_order_line_operator,l.sale.order.line.operator,model_l_sale_order_line,l_group_order_user,cru
+access_l_sale_order_line_manager,l.sale.order.line.manager,model_l_sale_order_line,l_group_order_manager,crud
+access_l_sale_order_wizard_operator,l.sale.order.wizard.operator,model_l_sale_order_wizard,l_group_order_user,crud
+access_l_sale_order_wizard_manager,l.sale.order.wizard.manager,model_l_sale_order_wizard,l_group_order_manager,crud
+access_l_task_operator,l.task.operator,model_l_task,l_group_order_user,cru
+access_l_task_manager,l.task.manager,model_l_task,l_group_order_manager,crud
+access_l_task_tag_operator,l.task.tag.operator,model_l_task_tag,l_group_order_user,r
+access_l_task_tag_manager,l.task.tag.manager,model_l_task_tag,l_group_order_manager,crud
+access_res_users_order_manager,res.users.order.manager,base.model_res_users,l_group_order_manager,ru

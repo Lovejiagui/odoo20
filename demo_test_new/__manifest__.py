@@ -2,7 +2,7 @@
     'name': 'Test new',
     # 版本格式：<Odoo 大版本>.<主版本>.<次版本>.<修订>
     # odoo.sh 会检测 manifest 中的版本号变化，部署新提交时自动触发模块升级。
-    'version': '20.0.2.3.0',
+    'version': '20.0.2.4.0',
     'summary': '我的新测试模块',
     'description': '测试模块的详细描述',
     'category': '',

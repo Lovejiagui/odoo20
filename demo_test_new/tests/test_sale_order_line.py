@@ -62,32 +62,46 @@ class TestSaleOrderLine(TransactionCase):
     def test_button_add_reuses_existing_tax(self):
         """账套里已有 21% 销售税 → 直接复用，不新建
 
-        这正是改之前会崩的场景：原来硬编码 name='21%' 去新建，撞上这条已有税项就抛
-        ValidationError: Tax names must be unique!
+        不依赖账套预置数据：先把已有 21% 税挪开，再自己造一条"已存在的"21% 税，
+        验证 button_add 走的是复用分支（这正是改之前会崩的场景：原来硬编码
+        name='21%' 去新建，撞上已有税项就抛 ValidationError: Tax names must be unique!）
         """
-        existing = self._taxes_21_percent()
-        self.assertTrue(existing, '前置条件：账套里应已有 21% 的销售税')
+        self._move_away_21_percent_taxes()
+        self.assertFalse(self._taxes_21_percent())
+        existing = self.env['account.tax'].create({
+            'name': '测试预置21%税',
+            'amount': 21.0,
+            'amount_type': 'percent',
+            'type_tax_use': 'sale',
+            'company_id': self.env.company.id,
+        })
 
         before = self.env['account.tax'].search_count([])
         self.line.button_add()
 
         self.assertEqual(self.env['account.tax'].search_count([]), before)  # 没有新增税项
         self.assertEqual(len(self.line.tax_ids), 1)
-        self.assertIn(self.line.tax_ids.id, existing.ids)
+        self.assertEqual(self.line.tax_ids, existing)
         self.assertAlmostEqual(self.line.tax_ids.amount, 21.0)
 
     def test_button_add_is_idempotent(self):
-        """反复点结果一致，不会像原来那样越点越多"""
-        before = self.env['account.tax'].search_count([])
+        """反复点结果一致，不会像原来那样越点越多
 
+        以第一次点击之后的状态为基准（此时 21% 税必定已存在，后续点击走复用分支），
+        再点两次断言：行上税项不变、库里税项总数不再增长。
+        这样无论账套里原本有没有 21% 税都成立。
+        """
         self.line.button_add()
         first_ids = self.line.tax_ids.ids
+        self.assertTrue(first_ids, '第一次点击后行上应有税项')
+        count_after_first = self.env['account.tax'].search_count([])
+
         self.line.button_add()
         self.line.button_add()
 
         self.assertEqual(self.line.tax_ids.ids, first_ids)
         self.assertEqual(len(self.line.tax_ids), 1)
-        self.assertEqual(self.env['account.tax'].search_count([]), before)
+        self.assertEqual(self.env['account.tax'].search_count([]), count_after_first)
 
     def test_button_add_creates_tax_when_missing(self):
         """账套里确实没有这条税时才新建，名称按税率动态拼出来"""

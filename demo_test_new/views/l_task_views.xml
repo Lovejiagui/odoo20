@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- ============ 列表视图 ============ -->
+    <record id="l_task_list_view" model="ir.ui.view">
+        <field name="name">l.task.list.view</field>
+        <field name="model">l.task</field>
+        <field name="type">list</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('done', 'cancel')" default_order="sequence, id desc">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'doing'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="priority" widget="priority"/>
+                <field name="date_start"/>
+                <field name="date_end" decoration-danger="date_end and date_end &lt; current_date and state not in ('done', 'cancel')"/>
+                <field name="progress" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============ 表单视图 ============ -->
+    <record id="l_task_form_view" model="ir.ui.view">
+        <field name="name">l.task.form.view</field>
+        <field name="model">l.task</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="任务">
+                <header>
+                    <button name="action_start" string="开始" type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_done" string="完成" type="object" class="btn-primary"
+                            invisible="state in ('done', 'cancel')"/>
+                    <button name="action_cancel" string="取消" type="object"
+                            invisible="state in ('done', 'cancel')"/>
+                    <button name="action_reset" string="重置为待办" type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,doing,done"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="例如：整理需求文档"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="priority" widget="priority"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        </group>
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="progress" widget="progressbar"/>
+                            <field name="color" widget="color_picker"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="描述" name="description_page">
+                            <field name="description" nolabel="1" placeholder="补充说明…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============ 看板视图 ============ -->
+    <record id="l_task_kanban_view" model="ir.ui.view">
+        <field name="name">l.task.kanban.view</field>
+        <field name="model">l.task</field>
+        <field name="type">kanban</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state"
+                    highlight_color="color"
+                    default_order="sequence, id desc"
+                    class="o_kanban_mobile">
+                <field name="state"/>
+                <field name="color"/>
+                <field name="tag_ids"/>
+                <field name="sequence" widget="handle"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <field name="name" class="fw-bolder fs-6 mb-2"/>
+                            <field name="priority" widget="priority"/>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-2">
+                            <field name="tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}" class="me-auto"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </div>
+
+                        <field name="progress" widget="progressbar"/>
+
+                        <div class="d-flex text-muted small mt-2">
+                            <span class="me-3">开始：<field name="date_start"/></span>
+                            <span>结束：<field name="date_end"/></span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============ 日历视图（社区版下的时间轴替代方案） ============ -->
+    <record id="l_task_calendar_view" model="ir.ui.view">
+        <field name="name">l.task.calendar.view</field>
+        <field name="model">l.task</field>
+        <field name="type">calendar</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_start"
+                      date_stop="date_end"
+                      color="user_id"
+                      string="任务排期"
+                      mode="month"
+                      event_open_popup="true"
+                      quick_create="1"
+                      scales="day,week,month,year">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- ============ 搜索视图 ============ -->
+    <record id="l_task_search_view" model="ir.ui.view">
+        <field name="name">l.task.search.view</field>
+        <field name="model">l.task</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="任务"/>
+                <field name="user_id"/>
+                <field name="tag_ids"/>
+                <filter name="filter_my" string="我负责的" domain="[('user_id', '=', uid)]"/>
+                <filter name="filter_open" string="未完成" domain="[('state', 'not in', ('done', 'cancel'))]"/>
+                <filter name="filter_overdue" string="已逾期"
+                        domain="[('date_end', '&lt;', current_date), ('state', 'not in', ('done', 'cancel'))]"/>
+                <separator/>
+                <filter name="group_state" string="按状态" context="{'group_by': 'state'}"/>
+                <filter name="group_user" string="按负责人" context="{'group_by': 'user_id'}"/>
+                <filter name="group_priority" string="按优先级" context="{'group_by': 'priority'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============ 图表视图 ============ -->
+    <record id="l_task_graph_view" model="ir.ui.view">
+        <field name="name">l.task.graph.view</field>
+        <field name="model">l.task</field>
+        <field name="type">graph</field>
+        <field name="arch" type="xml">
+            <graph string="任务统计" type="bar" sample="1">
+                <field name="state"/>
+                <field name="user_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ============ 透视视图 ============ -->
+    <record id="l_task_pivot_view" model="ir.ui.view">
+        <field name="name">l.task.pivot.view</field>
+        <field name="model">l.task</field>
+        <field name="type">pivot</field>
+        <field name="arch" type="xml">
+            <pivot string="任务透视" sample="1">
+                <field name="user_id" type="row"/>
+                <field name="state" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============ 动作 ============ -->
+    <record id="l_task_act_window" model="ir.actions.act_window">
+        <field name="name">任务看板</field>
+        <field name="res_model">l.task</field>
+        <field name="view_mode">kanban,list,calendar,form,graph,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">创建第一条任务</p>
+            <p>看板按状态分列，日历按起止日期排期，都可以直接拖拽调整。</p>
+        </field>
+    </record>
+
+</odoo>

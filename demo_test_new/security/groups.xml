@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 操作员：能建单、改自己的草稿单，但不能删单、不能改已完成单 -->
+    <record id="l_group_order_user" model="res.groups">
+        <field name="name">订单操作员</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- 管理员：全量权限，继承操作员 -->
+    <record id="l_group_order_manager" model="res.groups">
+        <field name="name">订单管理员</field>
+
+        <field name="implied_ids" eval="[(4, ref('l_group_order_user'))]"/>
+        <!-- Odoo 19 里 res.groups 的成员字段叫 user_ids（旧名 users 已移除）。
+             把 admin 放进管理员组，否则收紧 ACL 后连系统管理员都看不到业务菜单。 -->
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>

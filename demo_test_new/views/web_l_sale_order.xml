@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="l_sale_order" name="列表页面">
+
+            <div id="wrap" class="container">
+                <h1>订单列表</h1>
+                <ul>
+                    <t t-foreach="orders" t-as="item">
+                        <li><t t-esc="item.name"/> — <t t-esc="item.barcode"/></li>
+                    </t>
+                </ul>
+            </div>
+
+    </template>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 继承原生用户表单，在「访问权限」页的角色分组后面加订单系统的角色开关。
+         说明：Odoo 19 这一页已经有原生的 group_ids（widget=res_user_group_ids）和 role
+         单选控件，这里不再重复放置 group_ids，避免两个权限控件互相打架。 -->
+    <record id="view_users_form_inherit_order_groups" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.order.groups</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <!-- Odoo 19 不允许用 string 作为继承选择器，所以定位到原生 group_ids
+                 控件（页面里有两个，取第一个）前面插入 -->
+            <xpath expr="//page[@name='access_rights']/field[@name='group_ids'][1]" position="before">
+                <group string="订单系统权限" name="l_order_groups">
+                    <field name="l_is_order_user"/>
+                    <field name="l_is_order_manager"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

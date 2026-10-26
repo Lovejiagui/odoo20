@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 记录规则（ir.rule）说明：
+         1. 每条规则可以单独开关 perm_read / perm_write / perm_create / perm_unlink，
+            所以"读全部 + 只改草稿"要用两条规则表达。
+         2. 同一模型上，全局规则（不带 groups）AND 合并，分组规则 OR 合并。
+            管理员组隐含操作员组，取并集后即为"不受限制"。
+         3. 规则只做行级过滤，能不能建/删由 ir.model.access.csv 决定。 -->
+
+    <!-- ============ l.sale.order ============ -->
+    <record id="l_sale_order_rule_operator_read" model="ir.rule">
+        <field name="name">订单：操作员可读全部</field>
+        <field name="model_id" ref="model_l_sale_order"/>
+        <field name="groups" eval="[(4, ref('l_group_order_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="l_sale_order_rule_operator_draft" model="ir.rule">
+        <field name="name">订单：操作员只能新建/修改草稿单</field>
+        <field name="model_id" ref="model_l_sale_order"/>
+        <field name="groups" eval="[(4, ref('l_group_order_user'))]"/>
+        <field name="domain_force">[('state', '=', 'draft')]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="l_sale_order_rule_manager_all" model="ir.rule">
+        <field name="name">订单：管理员不受限制</field>
+        <field name="model_id" ref="model_l_sale_order"/>
+        <field name="groups" eval="[(4, ref('l_group_order_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- ============ l.sale.order.line ============ -->
+    <record id="l_sale_order_line_rule_operator_read" model="ir.rule">
+        <field name="name">明细行：操作员可读全部</field>
+        <field name="model_id" ref="model_l_sale_order_line"/>
+        <field name="groups" eval="[(4, ref('l_group_order_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="l_sale_order_line_rule_operator_draft" model="ir.rule">
+        <field name="name">明细行：操作员只能改草稿单的明细</field>
+        <field name="model_id" ref="model_l_sale_order_line"/>
+        <field name="groups" eval="[(4, ref('l_group_order_user'))]"/>
+        <field name="domain_force">[('order_id.state', '=', 'draft')]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="l_sale_order_line_rule_manager_all" model="ir.rule">
+        <field name="name">明细行：管理员不受限制</field>
+        <field name="model_id" ref="model_l_sale_order_line"/>
+        <field name="groups" eval="[(4, ref('l_group_order_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- ============ l.task ============ -->
+    <record id="l_task_rule_operator_own" model="ir.rule">
+        <field name="name">任务：操作员只能看自己的 + 未指派的</field>
+        <field name="model_id" ref="model_l_task"/>
+        <field name="groups" eval="[(4, ref('l_group_order_user'))]"/>
+        <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id', '=', False)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="l_task_rule_manager_all" model="ir.rule">
+        <field name="name">任务：管理员不受限制</field>
+        <field name="model_id" ref="model_l_task"/>
+        <field name="groups" eval="[(4, ref('l_group_order_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

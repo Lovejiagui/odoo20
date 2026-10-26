@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="l_sale_order_form_view" model="ir.ui.view">
+        <field name="name">l.sale.order.form.view</field>
+        <field name="model">l.sale.order</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form>
+
+                <sheet>
+                    <field name="carousel_dummy" widget="carousel_widget" nolabel="1"/>
+                    <!--widget type="carousel_widget"/-->
+
+                    <!-- 单号改由人工录入，表单里必填（ORM 层面不强求，方便批量导入） -->
+                    <h1><field name="name" required="1"/></h1>
+
+                    <group>
+                        <group>
+                            <field name="partner_id" />
+                            <field name="state" />
+
+                        </group>
+                        <group>
+                            <field name="validate_date"/>
+                            <field name="payment_type" />  <!--#invisible="1"!-->
+                            <field name="barcode" />
+
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="note" nolabel="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="明细行">
+                            <field name="line_ids">
+                                <list editable="bottom" >
+                                    <field name="name" column_invisible="0"/>
+                                    <field name="product_id"/>
+                                    <field name="qty"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" widget="many2many_tax_tags"/>
+                                    <field name="amount_total"/>
+                                    <button name="button_add" type="object" string="修改many2many"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="name" column_invisible="1"/>
+                                            <field name="product_id"/>
+                                            <field name="qty"/>
+                                        </group>
+                                        <group>
+                                            <field name="qty"/>
+                                            <field name="price_unit"/>
+                                            <field name="amount_total"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <record id="l_sale_order_view" model="ir.ui.view">
+        <field name="name">l.sale.order.view</field>
+        <field name="model">l.sale.order</field>
+        <field name="type">list</field>
+        <field name="arch" type="xml">
+
+            <list>
+<!--field name="carousel_dummy" widget="carousel_widget" nolabel="1"/-->
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="validate_date"/>
+                <field name="payment_type"/>
+                <!-- 视图里的 groups 必须写完整 xmlid（模块名.组名），
+                     只写组名会被当成"不存在的组"，日志里刷 The group ... does not exist。
+                     条码是管理员专属字段，操作员在列表里看不到。 -->
+                <field name="barcode" groups="demo_test_new.l_group_order_manager"/>
+                <field name="state" />
+
+            </list>
+        </field>
+    </record>
+
+    <record id="l_sale_order_act_window" model="ir.actions.act_window">
+        <field name="name">我的测试单据</field>
+        <field name="res_model">l.sale.order</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

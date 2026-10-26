@@ -1,0 +1,35 @@
+.o_carousel_widget {
+  .carousel_box {
+    position: relative; /* 作为箭头绝对定位父容器 */
+    text-align: center;
+  }
+  .carousel_img {
+    max-height: 300px;
+    max-width: 100%;
+  }
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.3);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .carousel-prev {
+    left:12px;
+  }
+  .carousel-next {
+    right:12px;
+  }
+  .carousel-btn:hover {
+    background: #ffffff;
+  }
+}

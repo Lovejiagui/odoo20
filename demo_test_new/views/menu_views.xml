@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- 菜单只对本模块的操作员组可见（管理员组隐含操作员组，所以管理员也看得到）。
+         没有加组的用户既看不到菜单，也没有任何模型的访问权限。 -->
+    <menuitem id="l_sale_order_menu_root" name="主菜单" sequence="1"
+              groups="l_group_order_user"/>
+    <menuitem id="l_sale_order_menu"
+              name="二级菜单" sequence="1"
+              parent="demo_test_new.l_sale_order_menu_root"
+              action="demo_test_new.l_sale_order_act_window"
+    />
+
+    <menuitem id="l_task_menu"
+              name="任务看板" sequence="10"
+              parent="demo_test_new.l_sale_order_menu_root"
+              action="demo_test_new.l_task_act_window"
+    />
+</odoo>

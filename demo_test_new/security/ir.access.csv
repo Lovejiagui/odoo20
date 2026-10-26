@@ -6,4 +6,6 @@ access_l_sale_order_wizard_manager,l.sale.order.wizard.manager,model_l_sale_orde
 access_l_task_manager,l.task.manager,model_l_task,l_group_order_manager,crud
 access_l_task_tag_operator,l.task.tag.operator,model_l_task_tag,l_group_order_user,r
 access_l_task_tag_manager,l.task.tag.manager,model_l_task_tag,l_group_order_manager,crud
+access_res_users_order_operator,res.users.order.operator,base.model_res_users,l_group_order_user,r
 access_res_users_order_manager,res.users.order.manager,base.model_res_users,l_group_order_manager,ru
+access_res_partner_order_manager,res.partner.order.manager,base.model_res_partner,l_group_order_manager,u

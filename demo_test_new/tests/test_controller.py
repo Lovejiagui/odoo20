@@ -41,15 +41,10 @@ class TestHostelController(HttpCase):
     def test_unknown_route_returns_404(self):
         """不存在的路由最终返回 404
 
-        注意：装了 website 模块之后，未命中路由的请求会先走 website 的 fallback，
-        不带语言前缀的 URL 会被 303 跳到 /zh_CN/xxx（所以原来直接断言 404 是错的），
-        这里先断言这一步重定向，再跟随到最终的 404。
+        注意：装了 website 且配置了多语言时，未命中路由的请求会先 303 跳到
+        /zh_CN/xxx 再 404；没配多语言（如 odoo.sh 默认库）则直接 404。
+        所以这里跟随全部重定向，只断言最终响应是 404，不依赖 website 配置。
         """
         self.authenticate('admin', 'admin')
-
-        raw = self.url_open('/hostel/wrong', allow_redirects=False)
-        self.assertEqual(raw.status_code, 303)
-        self.assertIn('/hostel/wrong', raw.headers.get('Location', ''))
-
         final = self.url_open('/hostel/wrong')
         self.assertEqual(final.status_code, 404)

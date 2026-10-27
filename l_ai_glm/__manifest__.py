@@ -15,7 +15,7 @@
   l_ai_glm.model        默认 glm-4.6
   l_ai_glm.enabled      是否启用（默认 1）
 """,
-    'version': '20.0.1.1.0',
+    'version': '20.0.1.2.0',
     'license': 'LGPL-3',
     'author': 'Lovejiagui',
     'depends': ['ai', 'iap'],

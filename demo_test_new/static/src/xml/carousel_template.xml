@@ -1,25 +1,27 @@
 <t t-name="demo_test_new.CarouselWidget" owl="1">
+    <!-- OWL 3 模板作用域不再回退到组件属性：表达式必须写 this.xxx（参照
+         Odoo 20 核心组件模板写法）；t-esc 也按官方迁移口径换成 t-out。 -->
     <!-- 外层容器：增加 position:relative -->
     <div class="o_carousel_widget p-3 border rounded"
-         t-on-mouseenter="onMouseEnter"
-         t-on-mouseleave="onMouseLeave">
+         t-on-mouseenter="this.onMouseEnter"
+         t-on-mouseleave="this.onMouseLeave">
         <h3>单据轮播图</h3>
         <!-- 轮播图片容器 -->
         <div class="carousel_box my-2">
             <img
-                t-att-src="state.imgList[state.index].src"
+                t-att-src="this.state.imgList[this.state.index].src"
                 class="carousel_img"
                 style="max-height:300px;max-width:100%;"/>
             <!-- 左右箭头按钮，从图片下方挪到图片内部左右两侧 -->
-            <button t-on-click="prevImg" class="carousel-btn carousel-prev">
+            <button t-on-click="this.prevImg" class="carousel-btn carousel-prev">
                 <i class="fa fa-chevron-left"/>
             </button>
-            <button t-on-click="nextImg" class="carousel-btn carousel-next">
+            <button t-on-click="this.nextImg" class="carousel-btn carousel-next">
                 <i class="fa fa-chevron-right"/>
             </button>
 
         </div>
 
-        <div class="mt-2">当前图片索引: <t t-esc="state.index"/></div>
+        <div class="mt-2">当前图片索引: <t t-out="this.state.index"/></div>
     </div>
 </t>

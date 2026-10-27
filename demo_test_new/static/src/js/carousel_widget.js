@@ -1,12 +1,14 @@
 /** @odoo-module **/
-import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
+// Odoo 20 使用 OWL 3：useState 已被移除，状态对象改用 proxy（官方迁移口径，
+// 见 odoo/upgrade_code/owl3-migration.py 的 upgrade_usestate）。
+import { Component, proxy } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 
 class CarouselWidget extends Component {
     static template = "demo_test_new.CarouselWidget";
 
     setup() {
-        this.state = useState({
+        this.state = proxy({
             index: 0,
             imgList: [
                 { id: 1, src: "/demo_test_new/static/src/img/1.png" },
